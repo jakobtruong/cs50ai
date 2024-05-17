@@ -90,10 +90,42 @@ def shortest_path(source, target):
     that connect the source to the target.
 
     If no possible path, returns None.
+
+    Source and target come in as name ids.
+    Can use, BFS to find shortest path using QueueFrontier class from the provided util.py in the distribution code.
+    Noticed implementation of QueueFrontier currently has an O(N) runtime complexity for removals. This can be optimized by using a deque for O(1) pops from the front of deque.
     """
 
-    # TODO
-    raise NotImplementedError
+    # Backtracks and returns list of (movie_id, person_id) pairs from source to target nodes
+    def get_path(end_node):
+        current_node = end_node
+        path_to_target_node = []
+        while current_node.parent:
+            path_to_target_node.append((current_node.action, current_node.state))
+            current_node = current_node.parent
+
+        path_to_target_node.reverse()
+        return path_to_target_node
+
+    frontier = QueueFrontier() # Using queue for BFS to find shortest path
+    frontier.add(Node(source, None, None))
+    visited = set()
+
+    while not frontier.empty():
+        current_node = frontier.remove()
+
+        # Checks if person_id is been visited before to prevent infinite loops/cycles
+        if current_node.state in visited:
+            continue
+        visited.add(current_node.state)
+
+        if current_node.state == target:
+            return get_path(current_node)
+
+        for costar_movie_id, costar_person_id in neighbors_for_person(current_node.state):
+            frontier.add(Node(costar_person_id, current_node, costar_movie_id))
+
+    return None
 
 
 def person_id_for_name(name):
