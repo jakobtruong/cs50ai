@@ -29,7 +29,7 @@ def player(board):
     for row in range(len(board)):
         for col in range(len(board[0])):
             if board[row][col] != EMPTY:
-                is_even != is_even
+                is_even = not is_even
 
     return X if is_even else O
 
@@ -42,7 +42,7 @@ def actions(board):
     for row in range(len(board)):
         for col in range(len(board[0])):
             if board[row][col] == EMPTY:
-                set.add((row, col))
+                possible_actions.add((row, col))
 
     return possible_actions
 
@@ -51,6 +51,11 @@ def result(board, action):
     """
     Returns the board that results from making move (i, j) on the board.
     """
+    if action[0] < 0 or action[0] > 2 or action[1] < 0 or action[1] > 2:
+        raise Exception("Sorry, action has coordinated that are out of bounds.")
+    elif board[action[0]][action[1]] != EMPTY:
+        raise Exception("Sorry, a move was already placed here.")
+
     result_board = copy.deepcopy(board)
     player_turn = player(result_board)
     result_board[action[0]][action[1]] = player_turn
@@ -127,5 +132,42 @@ def utility(board):
 def minimax(board):
     """
     Returns the optimal action for the current player on the board.
+
+    Maximize if player is X and minimize if player is O
     """
-    raise NotImplementedError
+    def max_value(board):
+        if terminal(board):
+            return (utility(board), None)
+
+        value = float('-inf')
+        optimal_action = None
+        for potential_action in actions(board):
+            potential_board = result(board, potential_action)
+            potential_board_value = min_value(potential_board)[0]
+            if potential_board_value >= value:
+                value = potential_board_value
+                optimal_action = potential_action
+
+        return (value, optimal_action)
+
+    def min_value(board):
+        if terminal(board):
+            return (utility(board), None)
+
+        value = float('inf')
+        optimal_action = None
+        for potential_action in actions(board):
+            potential_board = result(board, potential_action)
+            potential_board_value = max_value(potential_board)[0]
+            if potential_board_value <= value:
+                value = potential_board_value
+                optimal_action = potential_action
+
+        return (value, optimal_action)
+
+    current_player = player(board)
+    optimal_action = None
+
+    optimal_action = max_value(board)[1] if current_player == X else min_value(board)[1]
+
+    return optimal_action
