@@ -51,6 +51,7 @@ def result(board, action):
     """
     Returns the board that results from making move (i, j) on the board.
     """
+    # Checks for edge cases where action is a coordinate that is out of bounds or a coordinate that has an X or O already placed
     if action[0] < 0 or action[0] > 2 or action[1] < 0 or action[1] > 2:
         raise Exception("Sorry, action has coordinated that are out of bounds.")
     elif board[action[0]][action[1]] != EMPTY:
@@ -67,6 +68,7 @@ def winner(board):
     """
     Returns the winner of the game, if there is one.
     """
+    # Checks rows
     for row in range(len(board)):
         if board[row][0] != EMPTY and board[row][0] == board[row][1] == board[row][2]:
             return board[row][0]
@@ -92,6 +94,7 @@ def terminal(board):
     Returns True if game is over, False otherwise.
     """
     spaces_filled = True
+
     # Checks rows and also checks if all spaces are not empty
     for row in range(len(board)):
         if board[row][0] != EMPTY and board[row][0] == board[row][1] == board[row][2]:
@@ -135,6 +138,7 @@ def minimax(board):
 
     Maximize if player is X and minimize if player is O
     """
+    # Helper function to decide best action for player X
     def max_value(board):
         if terminal(board):
             return (utility(board), None)
@@ -150,6 +154,7 @@ def minimax(board):
 
         return (value, optimal_action)
 
+    # Helper function to decide best action for player O
     def min_value(board):
         if terminal(board):
             return (utility(board), None)
