@@ -137,6 +137,8 @@ def minimax(board):
     Returns the optimal action for the current player on the board.
 
     Maximize if player is X and minimize if player is O
+
+    Optimizations to consider: Alpha-Beta Pruning
     """
     # Helper function to decide best action for player X
     def max_value(board):
@@ -148,7 +150,7 @@ def minimax(board):
         for potential_action in actions(board):
             potential_board = result(board, potential_action)
             potential_board_value = min_value(potential_board)[0]
-            if potential_board_value >= value:
+            if potential_board_value > value:
                 value = potential_board_value
                 optimal_action = potential_action
 
@@ -164,7 +166,7 @@ def minimax(board):
         for potential_action in actions(board):
             potential_board = result(board, potential_action)
             potential_board_value = max_value(potential_board)[0]
-            if potential_board_value <= value:
+            if potential_board_value < value:
                 value = potential_board_value
                 optimal_action = potential_action
 
