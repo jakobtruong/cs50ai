@@ -144,6 +144,7 @@ def iterate_pagerank(corpus, damping_factor):
 
         max_difference = max([abs(curr_probabilities[i] - prev_probabilities[i]) for i in prev_probabilities])
         prev_probabilities = curr_probabilities.copy()
+
         # Breaks iterations when max
         if max_difference < threshold:
             break
