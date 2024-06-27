@@ -58,15 +58,17 @@ def transition_model(corpus, page, damping_factor):
     a link at random chosen from all pages in the corpus.
     """
     probability_distribution = {}
+    num_pages = len(corpus)
 
+    # Determines if we get a random page or not based on damping factor
     choose_random_page = True if random.random() >= damping_factor else False
     if page not in corpus or len(corpus[page]) == 0 or choose_random_page:
-        equal_probability = 1/len(corpus)
+        equal_probability = 1 / num_pages
         for key in corpus:
             probability_distribution[key] = equal_probability
 
     else:
-        equal_probability = 1/len(corpus[page])
+        equal_probability = 1 / len(corpus[page])
         for page_link in corpus[page]:
             probability_distribution[page_link] = equal_probability
 
@@ -85,18 +87,20 @@ def sample_pagerank(corpus, damping_factor, n):
     page_visit_count = {}
     for page in corpus:
         page_visit_count[page] = 0
+
+    # Sets first page visited to be random
     random_page_probability = transition_model(corpus, 'random string not in corpus to get random page', damping_factor)
     curr_page = random.choice(list(random_page_probability.keys()))
+
+    # Iterates n number of times to get page and update page visit count based on damping factor
     page_visit_count[curr_page] += 1
-    for i in range(n):
+    for i in range(1, n):
         next_page_probability = transition_model(corpus, curr_page, damping_factor)
-        random_number = random.random()
-        accumulation = 0
-        for page in next_page_probability:
-            accumulation += next_page_probability[page]
-            if random_number <= accumulation:
-                page_visit_count[page] += 1
-                break
+        next_page_distribution_possibilities = list(next_page_probability.keys())
+        next_page_distribution_probabilities = [next_page_probability[page] for page in next_page_distribution_possibilities]
+
+        curr_page = random.choices(next_page_distribution_possibilities, next_page_distribution_probabilities, k=1)[0]
+        page_visit_count[curr_page] += 1
 
     page_rank = {}
     for page in page_visit_count:
@@ -113,7 +117,38 @@ def iterate_pagerank(corpus, damping_factor):
     their estimated PageRank value (a value between 0 and 1). All
     PageRank values should sum to 1.
     """
-    raise NotImplementedError
+    num_pages = len(corpus)
+    threshold = .001
+    prev_probabilities = {}
+    curr_probabilities = {}
+
+    # Starts every page out with an equal probability
+    for page in corpus:
+        prev_probabilities[page] = 1 / num_pages
+
+    # First condition probability that remains a constant
+    first_condition_probability = (1 - damping_factor) / num_pages
+    while True:
+        for curr_page in corpus:
+            second_condition_probability = 0
+            for page in corpus:
+                # Considers probability if the page has a link outgoing to the current page we are calculating
+                if curr_page in corpus[page]:
+                    second_condition_probability += prev_probabilities[page] / len(corpus[page])
+                # In cases where page has no links, treat page as having link to any page including itself
+                elif len(corpus[page]) == 0:
+                        second_condition_probability += prev_probabilities[page] / num_pages
+
+            second_condition_probability *= damping_factor
+            curr_probabilities[curr_page] = first_condition_probability + second_condition_probability
+
+        max_difference = max([abs(curr_probabilities[i] - prev_probabilities[i]) for i in prev_probabilities])
+        prev_probabilities = curr_probabilities.copy()
+        # Breaks iterations when max
+        if max_difference < threshold:
+            break
+
+    return curr_probabilities
 
 
 if __name__ == "__main__":
