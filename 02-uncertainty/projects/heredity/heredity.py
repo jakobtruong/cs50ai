@@ -139,7 +139,42 @@ def joint_probability(people, one_gene, two_genes, have_trait):
         * everyone in set `have_trait` has the trait, and
         * everyone not in set` have_trait` does not have the trait.
     """
-    raise NotImplementedError
+    joint_probability_result = 1
+
+    for person in people:
+        person_gene_count = 1 if person in one_gene else 2 if person in two_genes else 0
+        person_has_trait = True if person in have_trait else False
+
+        if people[person]["mother"] != None and people[person]["father"] != None:
+            mother_name = people[person]["mother"]
+            father_name = people[person]["father"]
+
+            # Calculates probability a parent passes down gene based on how many of the desired genes the parent has
+            parent_gene_inheritance_probability = {}
+            for parent_name in [mother_name, father_name]:
+                if parent_name in one_gene:
+                    parent_gene_inheritance_probability[parent_name] = 0.5
+                elif parent_name in two_genes:
+                    parent_gene_inheritance_probability[parent_name] = 1 - PROBS["mutation"]
+                else:
+                    parent_gene_inheritance_probability[parent_name] = PROBS["mutation"]
+
+            if person_gene_count == 1:
+                # Possibility in the cases that either mother passes down gene, father does not pass down gene and mother does not pass down gene, father passes down gene
+                joint_probability_result *= (parent_gene_inheritance_probability[mother_name] * (1 - parent_gene_inheritance_probability[father_name]) +
+                                             (1 - parent_gene_inheritance_probability[mother_name]) * parent_gene_inheritance_probability[father_name])
+            elif person_gene_count == 2:
+                # Possibility that mother and father passes down gene
+                joint_probability_result *= parent_gene_inheritance_probability[mother_name] * parent_gene_inheritance_probability[father_name]
+            else:
+                # Possibility that mother and father do not pass down gene
+                joint_probability_result *= (1 - parent_gene_inheritance_probability[mother_name]) * (1 - parent_gene_inheritance_probability[father_name])
+        else:
+            joint_probability_result *= PROBS["gene"][person_gene_count]
+
+        joint_probability_result *= PROBS["trait"][person_gene_count][person_has_trait]
+
+    return joint_probability_result
 
 
 def update(probabilities, one_gene, two_genes, have_trait, p):
@@ -150,13 +185,7 @@ def update(probabilities, one_gene, two_genes, have_trait, p):
     the person is in `have_gene` and `have_trait`, respectively.
     """
     for person in probabilities:
-        if person in one_gene:
-            person_gene_count = 1
-        elif person in two_genes:
-            person_gene_count = 2
-        else:
-            person_gene_count = 0
-
+        person_gene_count = 1 if person in one_gene else 2 if person in two_genes else 0
         person_has_trait = True if person in have_trait else False
 
         probabilities[person]["gene"][person_gene_count] += p
