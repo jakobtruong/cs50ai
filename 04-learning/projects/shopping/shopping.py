@@ -59,7 +59,53 @@ def load_data(filename):
     labels should be the corresponding list of labels, where each label
     is 1 if Revenue is true, and 0 otherwise.
     """
-    raise NotImplementedError
+    # Opens file
+    with open(filename) as f:
+        reader = csv.reader(f)
+        next(reader)
+
+        months_to_int = {
+            "Jan" : 0,
+            "Feb" : 1,
+            "Mar" : 2,
+            "Apr" : 3,
+            "May" : 4,
+            "June" : 5,
+            "Jul" : 6,
+            "Aug" : 7,
+            "Sep" : 8,
+            "Oct" : 9,
+            "Nov" : 10,
+            "Dec" : 11
+        }
+
+        evidence = []
+        labels = []
+        for row in reader:
+            current_evidence_row = row.copy()
+
+            current_evidence_row[0] = int(row[0])
+            current_evidence_row[1] = float(row[1])
+            current_evidence_row[2] = int(row[2])
+            current_evidence_row[3] = float(row[3])
+            current_evidence_row[4] = int(row[4])
+            current_evidence_row[5] = float(row[5])
+            current_evidence_row[6] = float(row[6])
+            current_evidence_row[7] = float(row[7])
+            current_evidence_row[8] = float(row[8])
+            current_evidence_row[9] = float(row[9])
+            current_evidence_row[10] = months_to_int[row[10]]
+            current_evidence_row[11] = float(row[11])
+            current_evidence_row[12] = int(row[12])
+            current_evidence_row[13] = int(row[13])
+            current_evidence_row[14] = int(row[14])
+            current_evidence_row[15] = 1 if row[15] == "Returning_Visitor" else 0
+            current_evidence_row[16] = 1 if row[16] == "TRUE" else 0
+
+            evidence.append(current_evidence_row)
+            labels.append(1 if row[17] == "TRUE" else 0)
+
+    return evidence, labels
 
 
 def train_model(evidence, labels):
