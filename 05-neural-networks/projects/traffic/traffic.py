@@ -58,7 +58,31 @@ def load_data(data_dir):
     be a list of integer labels, representing the categories for each of the
     corresponding `images`.
     """
-    raise NotImplementedError
+    # Initialize variables that will be returned
+    images, labels = [], []
+
+    # Start Loading Data
+    print(f"Started loading data from {data_dir}")
+
+    # data_dir assumed to use correct os seperator
+    for curr_num_category in range(NUM_CATEGORIES):
+        curr_directory = os.path.join(data_dir, str(curr_num_category))
+
+        print(f"Loading from: {curr_directory}")
+        if os.path.isdir(curr_directory):
+            # os.listdir(path) returns list containing name of the entries in the directory given by path
+            for file_name in os.listdir(curr_directory):
+                file_path = os.path.join(curr_directory, file_name)
+
+                # OpenCV inherently represents images as NumPy arrays
+                img = cv2.imread(file_path)
+                img = cv2.resize(img, (IMG_WIDTH, IMG_HEIGHT))
+
+                # appends NumPy array from currently processed file path and the current category number
+                images.append(img)
+                labels.append(curr_num_category)
+
+    return images, labels
 
 
 def get_model():
@@ -67,7 +91,40 @@ def get_model():
     `input_shape` of the first layer is `(IMG_WIDTH, IMG_HEIGHT, 3)`.
     The output layer should have `NUM_CATEGORIES` units, one for each category.
     """
-    raise NotImplementedError
+    model = tf.keras.Sequential([])
+
+    # Convolutional layer that learns 40 filters using 3x3 kernel
+    model.add(tf.keras.layers.Conv2D(40, (3, 3), activation="relu",input_shape=(IMG_WIDTH, IMG_HEIGHT, 3)))
+
+    # Convolutional layer that learns 40 filters using 3x3 kernel
+    model.add(tf.keras.layers.Conv2D(40, (3, 3), activation="relu",input_shape=(IMG_WIDTH, IMG_HEIGHT, 3)))
+
+    # Max-pooling layer, using 5x5 pool size
+    model.add(tf.keras.layers.MaxPooling2D(pool_size=(5, 5)))
+
+    # Flatten units
+    model.add(tf.keras.layers.Flatten())
+
+    # Add a dense hidden layer
+    model.add(tf.keras.layers.Dense(150, activation="relu"))
+
+    # Add a dense hidden layer with dropout
+    model.add(tf.keras.layers.Dense(150, activation="relu"))
+    model.add(tf.keras.layers.Dropout(0.3))
+
+    # Add an output layer with output units for all 43 categories
+    model.add(tf.keras.layers.Dense(NUM_CATEGORIES, activation="softmax"))
+
+    # Provides a summary of the current model
+    model.summary()
+
+    model.compile(
+        optimizer="adam", # Adam optimization is a stochastic gradient descent method that is based on adaptive estimation of first-order and second-order moments
+        loss="categorical_crossentropy",
+        metrics=["accuracy"]
+    )
+
+    return model
 
 
 if __name__ == "__main__":
