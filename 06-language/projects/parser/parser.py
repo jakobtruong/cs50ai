@@ -85,7 +85,7 @@ def np_chunk(tree):
     noun phrases as subtrees.
     """
     # Returns True value if "NP" exists within any child subtrees of current subtree
-    def contains_NP(subtree):
+    def has_np_child(subtree):
         for child_subtree in subtree.subtrees():
             if child_subtree == subtree:
                 continue
@@ -98,7 +98,7 @@ def np_chunk(tree):
     # Iterates through subtrees that have a label of "NP"
     for subtree in tree.subtrees(lambda x: x.label() == "NP"):
         # Checks if subtrees children contains more "NP"
-        if not contains_NP(subtree):
+        if not has_np_child(subtree):
             result.append(subtree)
     return result
 
