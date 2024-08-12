@@ -91,6 +91,7 @@ def np_chunk(tree):
                 continue
             elif child_subtree.label() == "NP":
                 return True
+
         return False
 
     result = []
@@ -100,6 +101,7 @@ def np_chunk(tree):
         # Checks if subtrees children contains more "NP"
         if not has_np_child(subtree):
             result.append(subtree)
+
     return result
 
 
