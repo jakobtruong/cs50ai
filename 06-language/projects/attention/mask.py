@@ -59,6 +59,7 @@ def get_color_for_attention_score(attention_score):
     Return a tuple of three integers representing a shade of gray for the
     given `attention_score`. Each value should be in the range [0, 255].
     """
+    # tf.get_static_value returns a constant value of given tensor, if efficiently calculable
     rgb_value = round(255 * tf.get_static_value(attention_score))
 
     return (rgb_value, rgb_value, rgb_value)
@@ -78,8 +79,8 @@ def visualize_attentions(tokens, attentions):
     # Iterates through all layers and heads
     for i, layer in enumerate(attentions):
         for k in range(len(layer[0])):
-            layer_number = i + 1
-            head_number = k + 1
+            layer_number = i + 1 # Starts count at 1 for filename
+            head_number = k + 1 # Starts count at 1 for filename
             generate_diagram(
                 layer_number,
                 head_number,
